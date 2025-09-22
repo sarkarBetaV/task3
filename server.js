@@ -10,11 +10,16 @@ function gcd(a, b) {
     return gcd(b, a % b);
 }
 
-// LCM calculation using BigInt
+// LCM calculation with correct zero handling
 function lcm(a, b) {
     a = BigInt(a);
     b = BigInt(b);
+    
+    // Handle zero cases
     if (a === 0n && b === 0n) return 0n;
+    if (a === 0n) return b;
+    if (b === 0n) return a;
+    
     return (a * b) / gcd(a, b);
 }
 
@@ -32,7 +37,7 @@ app.get('/sarkarshiponb_gmail_com', (req, res) => {
             return res.send('NaN');
         }
         
-        // Try to parse as integers first, then as BigInt if needed
+        // Try to parse as BigInt
         let x, y;
         try {
             x = BigInt(xStr);
@@ -48,7 +53,7 @@ app.get('/sarkarshiponb_gmail_com', (req, res) => {
         
         res.setHeader('Content-Type', 'text/plain');
         
-        // Calculate LCM using BigInt
+        // Calculate LCM with correct zero handling
         const result = lcm(x, y);
         
         // Convert to string (no scientific notation with BigInt)
