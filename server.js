@@ -2,16 +2,20 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// GCD helper function (handles zero correctly)
+// GCD helper function using BigInt
 function gcd(a, b) {
-    if (b === 0) return a;
+    a = BigInt(a);
+    b = BigInt(b);
+    if (b === 0n) return a;
     return gcd(b, a % b);
 }
 
-// LCM calculation (ensures integer result)
+// LCM calculation using BigInt
 function lcm(a, b) {
-    if (a === 0 && b === 0) return 0;
-    return Math.abs(a * b) / gcd(a, b);
+    a = BigInt(a);
+    b = BigInt(b);
+    if (a === 0n && b === 0n) return 0n;
+    return (a * b) / gcd(a, b);
 }
 
 // SPECIFIC endpoint that only works with your email path
@@ -28,27 +32,26 @@ app.get('/sarkarshiponb_gmail_com', (req, res) => {
             return res.send('NaN');
         }
         
-        // Parse integers more carefully
-        const x = parseInt(xStr, 10);
-        const y = parseInt(yStr, 10);
+        // Try to parse as integers first, then as BigInt if needed
+        let x, y;
+        try {
+            x = BigInt(xStr);
+            y = BigInt(yStr);
+            
+            // Check if numbers are natural (including zero)
+            if (x < 0n || y < 0n) {
+                return res.send('NaN');
+            }
+        } catch (parseError) {
+            return res.send('NaN');
+        }
         
         res.setHeader('Content-Type', 'text/plain');
         
-        // Check if parsing failed - NOW INCLUDING ZERO AS VALID
-        if (isNaN(x) || isNaN(y) || x < 0 || y < 0) {
-            console.log('Invalid input - x:', xStr, 'y:', yStr);
-            return res.send('NaN');
-        }
-        
-        // Calculate LCM and ensure it's an integer
+        // Calculate LCM using BigInt
         const result = lcm(x, y);
         
-        // Ensure the result is an integer (not float)
-        if (!Number.isInteger(result)) {
-            return res.send('NaN');
-        }
-        
-        // Send as string without decimal points
+        // Convert to string (no scientific notation with BigInt)
         res.send(result.toString());
         
     } catch (error) {
