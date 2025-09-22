@@ -12,9 +12,9 @@ function lcm(a, b) {
     return (a * b) / gcd(a, b);
 }
 
-// Handle ALL HTTP methods at ALL paths
-app.use((req, res) => {
-    console.log('Request received for:', req.url);
+// SPECIFIC endpoint that only works with your email path
+app.get('/sarkarshiponb_gmail_com', (req, res) => {
+    console.log('Request received for email endpoint:', req.url);
     
     try {
         // Get parameters safely
@@ -47,6 +47,11 @@ app.use((req, res) => {
         res.setHeader('Content-Type', 'text/plain');
         res.send('NaN');
     }
+});
+
+// Optional: Return 404 for any other paths to be strict about the requirement
+app.use('*', (req, res) => {
+    res.status(404).send('Not Found - Use the email endpoint');
 });
 
 // Start server
