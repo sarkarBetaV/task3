@@ -12,34 +12,41 @@ function lcm(a, b) {
     return (a * b) / gcd(a, b);
 }
 
-// Main endpoint - use a parameter for the email path
-app.get('/:emailPath', (req, res) => {
-    const x = parseInt(req.query.x);
-    const y = parseInt(req.query.y);
+// Handle ALL HTTP methods at ALL paths
+app.use((req, res) => {
+    console.log('Request received for:', req.url);
     
-    res.setHeader('Content-Type', 'text/plain');
-    
-    if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
-        return res.send('NaN');
+    try {
+        // Get parameters safely
+        const xStr = req.query.x;
+        const yStr = req.query.y;
+        
+        // Check if parameters exist
+        if (xStr === undefined || yStr === undefined) {
+            return res.status(400).send('NaN');
+        }
+        
+        // Parse integers
+        const x = parseInt(xStr);
+        const y = parseInt(yStr);
+        
+        res.setHeader('Content-Type', 'text/plain');
+        
+        // Check if parsing failed or numbers are not natural
+        if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
+            console.log('Invalid input - x:', xStr, 'y:', yStr);
+            return res.send('NaN');
+        }
+        
+        const result = lcm(x, y);
+        console.log('Valid calculation - x:', x, 'y:', y, 'result:', result);
+        res.send(result.toString());
+        
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        res.setHeader('Content-Type', 'text/plain');
+        res.send('NaN');
     }
-    
-    const result = lcm(x, y);
-    res.send(result.toString());
-});
-
-// Alternative: If you want to handle the root path as well
-app.get('/', (req, res) => {
-    const x = parseInt(req.query.x);
-    const y = parseInt(req.query.y);
-    
-    res.setHeader('Content-Type', 'text/plain');
-    
-    if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
-        return res.send('NaN');
-    }
-    
-    const result = lcm(x, y);
-    res.send(result.toString());
 });
 
 // Start server
