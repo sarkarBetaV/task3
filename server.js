@@ -49,8 +49,8 @@ app.get('/sarkarshiponb_gmail_com', (req, res) => {
     }
 });
 
-// Optional: Return 404 for any other paths to be strict about the requirement
-app.use('*', (req, res) => {
+// Handle 404 for all other routes - FIXED VERSION
+app.use((req, res) => {
     res.status(404).send('Not Found - Use the email endpoint');
 });
 
